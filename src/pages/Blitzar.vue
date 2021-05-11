@@ -1,7 +1,14 @@
 <template>
   <q-page class="flex flex-center">
     <div class="q-pa-md">
-      <BlitzForm :schema="schema" v-model="formData" :columnCount="1" />
+      <BlitzForm
+        :key="formKey"
+        :schema="schema"
+        v-model="formData"
+        :columnCount="1"
+        :actionButtons="['edit', 'cancel', 'save']"
+        @save="onSave"
+      />
     </div>
     <div class="q-pa-md" style="max-width: 350px">
       <q-list bordered>
@@ -43,12 +50,20 @@ export default {
   data() {
     return {
       schema,
+      formKey: 0,
       formData: {},
       items: [
         { title: "Now you see me", isDone: true },
         { title: "Now you don't", isDone: false }
       ]
     };
+  },
+  methods: {
+    onSave({ newData }) {
+      this.formData = { title: "", isDone: false };
+      this.formKey++;
+      this.items.push(newData);
+    }
   }
 };
 </script>
