@@ -59,7 +59,16 @@ const schema = [
 ];
 const schemaColumns = [
   { id: "title", lable: "Title", component: "QInput" },
-  { id: "isDone", lable: "Done", component: "QCheckbox" }
+  {
+    id: "done",
+    lable: "Done",
+    component: "QInput",
+    parseValue: (val, { formData, fieldInput }) => {
+      const value = formData.isDone ? "✅" : "❌";
+      fieldInput({ id: "done", value });
+      return value;
+    }
+  }
 ];
 export default {
   name: "PageIndex",
@@ -73,10 +82,7 @@ export default {
         { title: "Now you see me", isDone: true },
         { title: "Now you don't", isDone: false }
       ],
-      schemaColumns: [
-        { id: "title", lable: "Title", component: "QInput" },
-        { id: "isDone", lable: "Done", component: "QCheckbox" }
-      ]
+      schemaColumns: schemaColumns
     };
   },
   methods: {
