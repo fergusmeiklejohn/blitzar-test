@@ -1,35 +1,48 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md">
-      <BlitzForm
-        :key="formKey"
-        :schema="schema"
-        v-model="formData"
-        :columnCount="1"
-        :actionButtons="['edit', 'cancel', 'save']"
-        @save="onSave"
-      />
-    </div>
-    <div class="q-pa-md" style="max-width: 350px">
-      <q-list bordered>
-        <q-item v-for="item in items" :key="item.id" clickable v-ripple>
-          <q-item-section>{{ item.title }}</q-item-section>
-          <q-item-section avatar>
-            <q-icon v-if="item.isDone" color="positive" name="done" />
-            <q-icon v-else color="negative" name="close" />
-          </q-item-section>
-        </q-item>
-      </q-list>
+    <div class="column items-center">
+      <div class="q-pa-md row">
+        <BlitzForm
+          :key="formKey"
+          :schema="schema"
+          v-model="formData"
+          :columnCount="1"
+          :actionButtons="['edit', 'cancel', 'save']"
+          @save="onSave"
+        />
+      </div>
+      <div class="q-pa-md row" style="max-width: 350px">
+        <q-list bordered>
+          <q-item v-for="item in items" :key="item.id" clickable v-ripple>
+            <q-item-section>{{ item.title }}</q-item-section>
+            <q-item-section avatar>
+              <q-icon v-if="item.isDone" color="positive" name="done" />
+              <q-icon v-else color="negative" name="close" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </div>
+      <div class="q-pa-md row">
+        <BlitzTable
+          :schemaColumns="schemaColumns"
+          :schemaGrid="schemaColumns"
+          :rows="items"
+          title="Todos"
+          flat
+          bordered
+        />
+      </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import { BlitzForm } from "blitzar";
+import { BlitzForm, BlitzTable } from "blitzar";
 import Vue from "vue";
-import { QInput, QToggle } from "quasar";
+import { QInput, QToggle, QCheckbox } from "quasar";
 Vue.component("QInput", QInput);
 Vue.component("QToggle", QToggle);
+Vue.component("QCheckbox", QCheckbox);
 const schema = [
   {
     id: "title",
@@ -44,9 +57,13 @@ const schema = [
     component: "QToggle"
   }
 ];
+const schemaColumns = [
+  { id: "title", lable: "Title", component: "QInput" },
+  { id: "isDone", lable: "Done", component: "QCheckbox" }
+];
 export default {
   name: "PageIndex",
-  components: { BlitzForm },
+  components: { BlitzForm, BlitzTable },
   data() {
     return {
       schema,
@@ -55,6 +72,10 @@ export default {
       items: [
         { title: "Now you see me", isDone: true },
         { title: "Now you don't", isDone: false }
+      ],
+      schemaColumns: [
+        { id: "title", lable: "Title", component: "QInput" },
+        { id: "isDone", lable: "Done", component: "QCheckbox" }
       ]
     };
   },
