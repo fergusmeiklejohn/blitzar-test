@@ -24,6 +24,7 @@
       </div>
       <div class="q-pa-md row">
         <BlitzTable
+          @row-click="editRow"
           :schemaColumns="schemaColumns"
           :schemaGrid="schemaColumns"
           :rows="items"
@@ -47,14 +48,12 @@ const schema = [
   {
     id: "title",
     component: "QInput",
-    label: "Title",
-    subLabel: "An irresistable sublabel"
+    label: "Title"
   },
   {
     id: "isDone",
     label: "Done",
-    subLabel: "Pound that Done button baby!",
-    component: "QToggle"
+    component: "QCheckbox"
   }
 ];
 const schemaColumns = [
@@ -90,6 +89,12 @@ export default {
       this.formData = { title: "", isDone: false };
       this.formKey++;
       this.items.push(newData);
+    },
+    editRow(event, rowData) {
+      let title = rowData.title;
+      let isDone = rowData.isDone;
+      this.formData = { title, isDone };
+      this.formKey++;
     }
   }
 };
