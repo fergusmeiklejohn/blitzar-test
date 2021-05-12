@@ -9,6 +9,7 @@
           :columnCount="1"
           :actionButtons="['edit', 'cancel', 'save']"
           @save="onSave"
+          @cancel="onCancel"
         />
       </div>
       <div class="q-pa-md row" style="max-width: 350px">
@@ -40,23 +41,56 @@
 <script>
 import { BlitzForm, BlitzTable } from "blitzar";
 import Vue from "vue";
-import { QInput, QToggle, QCheckbox } from "quasar";
+import { QInput, QToggle, QCheckbox, Dialog } from "quasar";
 Vue.component("QInput", QInput);
 Vue.component("QToggle", QToggle);
 Vue.component("QCheckbox", QCheckbox);
+
+// Firestore users have 28 char ids
+// Firestore docs have 20 char ids
+function createRandomID(len) {
+  const CHARS =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const Alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+  let id = "";
+
+  for (let i = 0; i < len; i++) {
+    if (i === 0) {
+      id += Alpha.charAt(Math.floor(Math.random() * CHARS.length));
+    } else {
+      id += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+    }
+  }
+  return id;
+}
+
 const schema = [
   {
     id: "title",
     component: "QInput",
-    label: "Title"
+    label: "Title",
+    defaultValue: ""
   },
   {
     id: "isDone",
     label: "Done",
-    component: "QCheckbox"
+    component: "QCheckbox",
+    defaultValue: false
   }
 ];
 const schemaColumns = [
+  {
+    id: "edit-btn",
+    component: "button",
+    slot: "Edit",
+    mode: "view",
+    events: {
+      click: (event, { formData }) => {
+        console.log("formData: ", formData);
+      }
+    }
+  },
   { id: "title", lable: "Title", component: "QInput" },
   {
     id: "done",
@@ -78,22 +112,33 @@ export default {
       formKey: 0,
       formData: {},
       items: [
-        { title: "Now you see me", isDone: true },
-        { title: "Now you don't", isDone: false }
+        { docId: "5HG4KA468UbcuzezQP3", title: "Now you see me", isDone: true },
+        { docId: "AP08fuLBpr3TRuxd3Yrx", title: "Now you don't", isDone: false }
       ],
       schemaColumns: schemaColumns
     };
   },
   methods: {
-    onSave({ newData }) {
+    onSave({ newData, oldData }) {
+      this.formData = { title: "", isDone: false };
+      let id = oldData.docId ?? createRandomID(20);
+      if (oldData.docId) {
+        this.items = this.items.filter(item => item.docId !== oldData.docId);
+      }
+      let item = { docId: id, ...newData };
+      this.items.push(item);
+      this.formKey++;
+    },
+    onCancel() {
       this.formData = { title: "", isDone: false };
       this.formKey++;
-      this.items.push(newData);
     },
     editRow(event, rowData) {
+      console.log(rowData);
+      let docId = rowData.docId;
       let title = rowData.title;
       let isDone = rowData.isDone;
-      this.formData = { title, isDone };
+      this.formData = { docId, title, isDone };
       this.formKey++;
     }
   }
